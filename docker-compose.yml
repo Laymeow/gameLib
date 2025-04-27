@@ -1,0 +1,69 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qweqwe
+    ports:
+      - "5430:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - f1-network
+
+  eureka-server:
+    build: ./eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - f1-network
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8086:8086"
+    depends_on:
+      - eureka-server
+    networks:
+      - f1-network
+
+  driver-service:
+    build: ./driver-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+      - eureka-server
+    networks:
+      - f1-network
+
+  team-service:
+    build: ./team-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+      - eureka-server
+      - driver-service
+    networks:
+      - f1-network
+
+  race-service:
+    build: ./race-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres
+      - eureka-server
+      - driver-service
+    networks:
+      - f1-network
+
+volumes:
+  postgres_data:
+
+networks:
+  f1-network:
+    driver: bridge
