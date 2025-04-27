@@ -1,5 +1,7 @@
 package com.example.raceservice;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -13,10 +15,11 @@ public class Race {
     private Long id;
     private String location;
     private LocalDate date;
-    @OneToMany(mappedBy = "race", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "race", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Result> results = new ArrayList<>();
 
-    // Getters and Setters
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getLocation() { return location; }

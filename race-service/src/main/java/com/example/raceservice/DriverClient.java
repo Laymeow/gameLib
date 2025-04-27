@@ -4,10 +4,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.sql.Driver;
-
-@FeignClient(name = "driver-service")
+@FeignClient(name = "driver-service", url = "${driver.service.url}")
 public interface DriverClient {
     @GetMapping("/drivers/{id}")
-    Driver getDriverById(@PathVariable("id") Long id);
+    DriverDTO getDriverById(@PathVariable("id") Long id);
 }

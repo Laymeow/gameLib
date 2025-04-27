@@ -1,69 +1,75 @@
-version: '3.8'
 services:
   postgres:
-    image: postgres:15
+    image: postgres:17
     environment:
-      POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: qweqwe
+      POSTGRES_DB: postgres
     ports:
-      - "5430:5432"
+      - "5430:5430"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - f1-network
+      - app-network
 
   eureka-server:
-    build: ./eureka-server
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
     ports:
       - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=eureka-server
     networks:
-      - f1-network
+      - app-network
 
-  api-gateway:
-    build: ./api-gateway
+  race-service:
+    build:
+      context: ./race-service
+      dockerfile: Dockerfile
     ports:
-      - "8086:8086"
+      - "8085:8085"
     depends_on:
+      - postgres
       - eureka-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=race-service
     networks:
-      - f1-network
+      - app-network
 
   driver-service:
-    build: ./driver-service
+    build:
+      context: ./driver-service
+      dockerfile: Dockerfile
     ports:
       - "8081:8081"
     depends_on:
       - postgres
       - eureka-server
+      - team-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=driver-service
     networks:
-      - f1-network
+      - app-network
 
   team-service:
-    build: ./team-service
+    build:
+      context: ./team-service
+      dockerfile: Dockerfile
     ports:
       - "8082:8082"
     depends_on:
       - postgres
       - eureka-server
-      - driver-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=team-service
     networks:
-      - f1-network
-
-  race-service:
-    build: ./race-service
-    ports:
-      - "8083:8083"
-    depends_on:
-      - postgres
-      - eureka-server
-      - driver-service
-    networks:
-      - f1-network
-
-volumes:
-  postgres_data:
+      - app-network
 
 networks:
-  f1-network:
+  app-network:
     driver: bridge
+
+volumes:
+  postgres-data:
