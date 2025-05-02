@@ -1,21 +1,40 @@
 package com.example.authservice;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
+    private final AuthService authService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    private AuthService authService;
+    public AuthController(AuthService authService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.authService = authService;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
-        User user = authService.register(request.getUsername(), request.getEmail(), request.getPassword());
-        return ResponseEntity.ok(user);
+    public ResponseEntity<Map<String, String>> registerUser(@RequestBody User user) {
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Username already exists"));
+        }
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email already exists"));
+        }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRegistrationDate(LocalDate.from(LocalDateTime.now()));
+        userRepository.save(user);
+        return ResponseEntity.ok(Map.of("message", "User registered successfully"));
     }
 
     @PostMapping("/login")
