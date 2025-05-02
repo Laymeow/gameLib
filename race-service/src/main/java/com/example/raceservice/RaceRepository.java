@@ -1,7 +1,0 @@
-package com.example.raceservice;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface RaceRepository extends JpaRepository<Race, Long> {
-
-}

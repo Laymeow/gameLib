@@ -11,6 +11,6 @@ COPY src /app/src
 
 RUN ./gradlew build -x test
 
-EXPOSE 8761
+EXPOSE 8081
 
-CMD ["java", "-jar", "build/libs/eureka-server-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "build/libs/game-service-0.0.1-SNAPSHOT.jar"]

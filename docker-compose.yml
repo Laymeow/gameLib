@@ -1,75 +1,191 @@
+version: '3.8'
 services:
-  postgres:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: qweqwe
-      POSTGRES_DB: postgres
-    ports:
-      - "5430:5430"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - app-network
-
   eureka-server:
+    image: gamelib-eureka-server
     build:
       context: ./eureka-server
-      dockerfile: Dockerfile
     ports:
       - "8761:8761"
-    environment:
-      - SPRING_PROFILES_ACTIVE=eureka-server
     networks:
-      - app-network
+      - gamelib-network
 
-  race-service:
+  api-gateway:
+    image: gamelib-api-gateway
     build:
-      context: ./race-service
-      dockerfile: Dockerfile
+      context: ./api-gateway
     ports:
-      - "8085:8085"
-    depends_on:
-      - postgres
-      - eureka-server
+      - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=race-service
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    depends_on:
+      - eureka-server
     networks:
-      - app-network
+      - gamelib-network
 
-  driver-service:
+  auth-service:
+    image: gamelib-auth-service
     build:
-      context: ./driver-service
-      dockerfile: Dockerfile
-    ports:
-      - "8081:8081"
-    depends_on:
-      - postgres
-      - eureka-server
-      - team-service
+      context: ./auth-service
     environment:
-      - SPRING_PROFILES_ACTIVE=driver-service
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-db:5430/authdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=qweqwe
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    depends_on:
+      - auth-db
+      - eureka-server
     networks:
-      - app-network
+      - gamelib-network
 
-  team-service:
-    build:
-      context: ./team-service
-      dockerfile: Dockerfile
-    ports:
-      - "8082:8082"
-    depends_on:
-      - postgres
-      - eureka-server
+  auth-db:
+    image: postgres:17
     environment:
-      - SPRING_PROFILES_ACTIVE=team-service
+      - POSTGRES_DB=authdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=qweqwe
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
     networks:
-      - app-network
+      - gamelib-network
+
+  game-service:
+    image: gamelib-game-service
+    build:
+      context: ./game-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://game-db:5430/gamedb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=qweqwe
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    depends_on:
+      - game-db
+      - eureka-server
+    networks:
+      - gamelib-network
+
+  game-db:
+    image: postgres:17
+    environment:
+      - POSTGRES_DB=gamedb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=qweqwe
+    volumes:
+      - game-db-data:/var/lib/postgresql/data
+    networks:
+      - gamelib-network
+
+  developer-service:
+    image: gamelib-developer-service
+    build:
+      context: ./developer-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://developer-db:5430/developerdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=qwewqe
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    depends_on:
+      - developer-db
+      - eureka-server
+    networks:
+      - gamelib-network
+
+  developer-db:
+    image: postgres:17
+    environment:
+      - POSTGRES_DB=developerdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=qweqwe
+    volumes:
+      - developer-db-data:/var/lib/postgresql/data
+    networks:
+      - gamelib-network
+
+  user-service:
+    image: gamelib-user-service
+    build:
+      context: ./user-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://user-db:5430/userdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=qweqwe
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    depends_on:
+      - user-db
+      - eureka-server
+    networks:
+      - gamelib-network
+
+  user-db:
+    image: postgres:17
+    environment:
+      - POSTGRES_DB=userdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=qweqwe
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    networks:
+      - gamelib-network
+
+  review-service:
+    image: gamelib-review-service
+    build:
+      context: ./review-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://review-db:5430/reviewdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=qweqwe
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    depends_on:
+      - review-db
+      - eureka-server
+    networks:
+      - gamelib-network
+
+  review-db:
+    image: postgres:17
+    environment:
+      - POSTGRES_DB=reviewdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=qweqwe
+    volumes:
+      - review-db-data:/var/lib/postgresql/data
+    networks:
+      - gamelib-network
+
+  userlibrary-service:
+    image: gamelib-userlibrary-service
+    build:
+      context: ./userlibrary-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://userlibrary-db:5430/userlibrarydb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=qweqwe
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    depends_on:
+      - userlibrary-db
+      - eureka-server
+    networks:
+      - gamelib-network
+
+  userlibrary-db:
+    image: postgres:17
+    environment:
+      - POSTGRES_DB=userlibrarydb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=qweqwe
+    volumes:
+      - userlibrary-db-data:/var/lib/postgresql/data
+    networks:
+      - gamelib-network
 
 networks:
-  app-network:
+  gamelib-network:
     driver: bridge
 
 volumes:
-  postgres-data:
+  auth-db-data:
+  game-db-data:
+  developer-db-data:
+  user-db-data:
+  review-db-data:
+  userlibrary-db-data:
