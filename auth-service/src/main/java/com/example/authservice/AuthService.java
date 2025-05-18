@@ -16,34 +16,20 @@ import java.util.Optional;
 public class AuthService {
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtEncoder jwtEncoder;
 
-    public User register(String username, String email, String password) {
-        if (userRepository.findByUsername(username).isPresent() || userRepository.findByEmail(email).isPresent()) {
-            throw new RuntimeException("Username or email already exists");
-        }
+    @Autowired
+    private UserServiceClient userServiceClient;
 
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setRegistrationDate(LocalDate.now());
-        return userRepository.save(user);
-    }
-
-    public String login(String username, String password) {
-        Optional<User> userOpt = userRepository.findByUsername(username);
-        if (userOpt.isEmpty() || !passwordEncoder.matches(password, userOpt.get().getPassword())) {
+    public String login(String username, String rawPassword) {
+        User user = userServiceClient.getUserByUsername(username); // You might need to add this endpoint
+        if (user == null || !passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
 
-        User user = userOpt.get();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("gamelib")
                 .issuedAt(Instant.now())
