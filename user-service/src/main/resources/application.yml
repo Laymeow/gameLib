@@ -25,7 +25,10 @@ eureka:
     register-with-eureka: true
 
 management:
-  wavefront:
-    metrics:
-      export:
-        enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS

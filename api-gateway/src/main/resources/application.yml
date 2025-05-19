@@ -33,7 +33,7 @@ spring:
           predicates:
             - Path=/api/auth/**
           filters:
-            - StripPrefix=2
+            - StripPrefix=1
         - id: review-service
           uri: lb://review-service
           predicates:
@@ -56,6 +56,6 @@ eureka:
 
 logging:
   level:
-    org.springframework.cloud.gateway: TRACE
-    reactor.netty: TRACE
-    org.springframework.cloud.loadbalancer: DEBUG
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: DEBUG

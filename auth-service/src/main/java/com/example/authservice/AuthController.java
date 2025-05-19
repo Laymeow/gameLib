@@ -25,7 +25,6 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> registerUser(@RequestBody RegisterRequest request) {
         try {
-            // Send registration to user-service
             ResponseEntity<String> response = userServiceClient.register(request);
 
             if (response.getStatusCode().is2xxSuccessful()) {

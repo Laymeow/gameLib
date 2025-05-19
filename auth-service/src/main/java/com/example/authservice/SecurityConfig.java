@@ -23,7 +23,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2.disable()); // Explicitly disable OAuth2 if enabled
+                .oauth2ResourceServer(oauth2 -> oauth2.disable());
         return http.build();
     }
 }

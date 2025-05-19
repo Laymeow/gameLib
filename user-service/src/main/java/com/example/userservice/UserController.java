@@ -2,8 +2,10 @@ package com.example.userservice;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,23 +15,29 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @GetMapping
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User newUser) {
-        if (userRepository.findByUsername(newUser.getUsername()).isPresent()) {
+    public ResponseEntity<User> registerUser(@RequestBody RegisterRequest request) {
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             return ResponseEntity.badRequest().build();
         }
-        if (newUser.getEmail() != null && userRepository.findByEmail(newUser.getEmail()).isPresent()) {
+        if (request.getEmail() != null && userRepository.findByEmail(request.getEmail()).isPresent()) {
             return ResponseEntity.badRequest().build();
         }
 
-        User savedUser = userRepository.save(newUser);
-        return ResponseEntity.ok(savedUser);
+        User newUser = new User();
+        newUser.setUsername(request.getUsername());
+        newUser.setEmail(request.getEmail());
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        newUser.setRegistrationDate(LocalDate.now());
+
+        return ResponseEntity.ok(userRepository.save(newUser));
     }
 
     @GetMapping("/{id}")

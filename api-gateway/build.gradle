@@ -16,8 +16,10 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:4.1.3'
     implementation 'org.projectlombok:lombok:1.18.32'
+    implementation 'org.springframework.cloud:spring-cloud-function-context'
     annotationProcessor 'org.projectlombok:lombok:1.18.32'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'io.netty:netty-resolver-dns-native-macos:4.1.108.Final'
 }
 
 dependencyManagement {

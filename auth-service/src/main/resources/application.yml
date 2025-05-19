@@ -2,17 +2,12 @@ server:
   port: 8082
 
 spring:
-  mvc:
-    cors:
-      allowed-origins: "*"
-      allowed-methods: "*"
-      allowed-headers: "*"
   application:
     name: auth-service
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5430/authdb}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:qwewqe}
+    password: ${SPRING_DATASOURCE_PASSWORD:qweqwe}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
