@@ -15,17 +15,20 @@ import java.util.Optional;
 @Service
 public class AuthService {
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtEncoder jwtEncoder;
+    private final UserServiceClient userServiceClient;
 
-    @Autowired
-    private JwtEncoder jwtEncoder;
-
-    @Autowired
-    private UserServiceClient userServiceClient;
+    public AuthService(PasswordEncoder passwordEncoder,
+                       JwtEncoder jwtEncoder,
+                       UserServiceClient userServiceClient) {
+        this.passwordEncoder = passwordEncoder;
+        this.jwtEncoder = jwtEncoder;
+        this.userServiceClient = userServiceClient;
+    }
 
     public String login(String username, String rawPassword) {
-        User user = userServiceClient.getUserByUsername(username); // You might need to add this endpoint
+        User user = userServiceClient.getUserByUsername(username);
         if (user == null || !passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }

@@ -19,6 +19,19 @@ public class UserController {
         return userRepository.findAll();
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<User> registerUser(@RequestBody User newUser) {
+        if (userRepository.findByUsername(newUser.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (newUser.getEmail() != null && userRepository.findByEmail(newUser.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        User savedUser = userRepository.save(newUser);
+        return ResponseEntity.ok(savedUser);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         Optional<User> user = userRepository.findById(id);

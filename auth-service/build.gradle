@@ -28,6 +28,7 @@ dependencies {
 	implementation 'org.projectlombok:lombok:1.18.32'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	annotationProcessor 'org.projectlombok:lombok:1.18.32'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
